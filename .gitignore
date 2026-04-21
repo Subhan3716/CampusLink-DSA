@@ -1,0 +1,25 @@
+# Visual Studio ignores
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.exe
+*.o
+*.obj
+*.pdb
+*.log
+*.tlog
+*.lastbuildstate
+*.idb
+*.ipch
+*.res
+*.ilk
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.opensdf
+*.sdf
+*.cache
+*.opendb
