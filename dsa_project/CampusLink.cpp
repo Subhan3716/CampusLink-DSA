@@ -1,4 +1,16 @@
 #include "CampusLink.h"
+#include <limits>
+
+namespace {
+bool readMenuChoice(int& choice) {
+    if (cin >> choice) return true;
+    if (cin.eof()) return false;
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    choice = -1;
+    return true;
+}
+}
 
 // ==========================================
 // COMPLAINTS MODULE
@@ -732,6 +744,7 @@ UniversitySystem::UniversitySystem() { currentUser = nullptr; seedData(); }
 void UniversitySystem::seedData() {
     people.registerUser("subhan", "123", "Admin", "CS-dept", "admin@uni.edu");
     people.registerUser("fatima", "123", "Student", "CS", "std@uni.edu");
+    people.registerUser("System", "", "System", "Internal", "system@uni.edu");
     campus.addBuilding("CS_building"); campus.addBuilding("Library"); campus.addBuilding("Cafe");
     campus.addBuilding("Main-Gate"); campus.addBuilding("FSM_Building"); campus.addBuilding("SFC_building"); campus.addBuilding("Dhaba");
     campus.addPath("CS_building", "Library", 70, "Walkway"); campus.addPath("CS_building", "Cafe", 90, "Walkway");
@@ -775,7 +788,10 @@ void UniversitySystem::reserveRoomLogic(string bName, string rID) {
 void UniversitySystem::menuUser() {
     while (true) {
         cout << "\n=== User Directory ===\n1. Register\n2. Login\n3. Update Profile\n4. Delete\n5. Search\n6. Display All\n7. Back\n> ";
-        int c; cin >> c; if (c == 7) return;
+        int c;
+        if (!readMenuChoice(c)) return;
+        if (c == -1) continue;
+        if (c == 7) return;
         switch (c) {
         case 1: { string u, p, r, d, e; cout << "User: "; cin >> u; cout << "Pass: "; cin >> p; cout << "Role: "; cin >> r; cout << "Dept: "; cin >> d; cout << "Email: "; cin >> e; people.registerUser(u, p, r, d, e); break; }
         case 2: { string u, p; cout << "User: "; cin >> u; cout << "Pass: "; cin >> p; HashNode* user = people.getUser(u); if (user && user->password == p) { currentUser = user; cout << "Logged in.\n"; } else cout << "Invalid.\n"; break; }
@@ -794,7 +810,10 @@ void UniversitySystem::menuUser() {
 void UniversitySystem::menuMap() {
     while (true) {
         cout << "\n=== Campus Map ===\n1. Add Bldg\n2. Rem Bldg\n3. Add Path\n4. Rem Path\n5. Dijkstra\n6. BFS\n7. DFS\n8. Prim's\n9. Back\n> ";
-        int c; cin >> c; if (c == 9) return;
+        int c;
+        if (!readMenuChoice(c)) return;
+        if (c == -1) continue;
+        if (c == 9) return;
         switch (c) {
         case 1: { string n; cout << "Name: "; cin >> n; campus.addBuilding(n); break; }
         case 2: { string n; cout << "Name: "; cin >> n; deleteBuildingIntegrated(n); break; }
@@ -813,7 +832,10 @@ void UniversitySystem::menuRooms() {
     BuildingNode* b = campus.getBuilding(bName); if (!b) { cout << "Not found.\n"; return; }
     while (true) {
         cout << "\n=== Rooms (" << bName << ") ===\n1. Insert\n2. Delete\n3. Search\n4. Search Type\n5. Reserve\n6. Cancel\n7. Traversals\n8. Stats\n9. Back\n> ";
-        int c; cin >> c; if (c == 9) return;
+        int c;
+        if (!readMenuChoice(c)) return;
+        if (c == -1) continue;
+        if (c == 9) return;
         switch (c) {
         case 1: { string r, t; int f; cout << "ID: "; cin >> r; cout << "Type: "; cin >> t; cout << "Floor: "; cin >> f; b->rooms->insert(r, t, f); break; }
         case 2: { string r; cout << "ID: "; cin >> r; b->rooms->remove(r); break; }
@@ -831,7 +853,10 @@ void UniversitySystem::menuComplaints() {
     if (!currentUser) { cout << "Login first.\n"; return; }
     while (true) {
         cout << "\n=== Complaints ===\n1. Submit\n2. Process\n3. Display\n4. Back\n> ";
-        int c; cin >> c; if (c == 4) return;
+        int c;
+        if (!readMenuChoice(c)) return;
+        if (c == -1) continue;
+        if (c == 4) return;
         switch (c) {
         case 1: { string b, r, d; cout << "Bldg: "; cin >> b; cout << "Room: "; cin >> r; cin.ignore(); cout << "Desc: "; getline(cin, d); complaints.enqueue(currentUser->username, b, r, d, "Today"); break; }
         case 2: { complaints.dequeue(); cout << "Processed.\n"; break; }
@@ -844,7 +869,10 @@ void UniversitySystem::menuMessaging() {
     if (!currentUser) { cout << "Login first.\n"; return; }
     while (true) {
         cout << "\n=== Messaging ===\n1. Send\n2. View Latest\n3. Pop Latest\n4. Display Conversation\n5. Back\n> ";
-        int c; cin >> c; if (c == 5) return;
+        int c;
+        if (!readMenuChoice(c)) return;
+        if (c == -1) continue;
+        if (c == 5) return;
         switch (c) {
         case 1: { string t, m; cout << "To: "; cin >> t; cin.ignore(); cout << "Msg: "; getline(cin, m); people.sendMessage(currentUser->username, t, m); break; }
         case 2: { string f; cout << "Friend: "; cin >> f; MessageNode* m = people.viewLatestMessage(currentUser->username, f); if (m) cout << "Latest: " << m->messageText << endl; else cout << "None.\n"; break; }
@@ -858,7 +886,9 @@ void UniversitySystem::mainMenu() {
     while (true) {
         cout << "\n================ MAIN MENU ================\n1. Auth\n2. Map\n3. Rooms\n4. Complaints\n5. Messaging\n6. Exit\n===========================================\n";
         cout << "User: " << (currentUser ? currentUser->username : "Guest") << "\n> ";
-        int ch; if (!(cin >> ch)) { cin.clear(); cin.ignore(1000, '\n'); continue; }
+        int ch;
+        if (!readMenuChoice(ch)) return;
+        if (ch == -1) continue;
         if (ch == 1) menuUser(); else if (ch == 2) menuMap(); else if (ch == 3) menuRooms(); else if (ch == 4) menuComplaints(); else if (ch == 5) menuMessaging(); else if (ch == 6) break; else cout << "Invalid.\n";
     }
 }
